@@ -611,9 +611,19 @@ namespace GXPEngine.PhysicsCore
 
 
                 //TODO Simple circle point collision
+                if(PointCircle(vc, self.Owner.position + selfPrediction, r))
+                {
+                    Vec2 newPos = self.Owner.position + selfPrediction;
+                    Vec2 normal = (self.Owner.position - vc).normalized;
+                    Vec2 colPos = vc + normal * r;
+                    float TOI = colPos.length / newPos.length;
+                    Debug.Log(TOI.ToString());
+                    if(TOI <= 1 && TOI >= 0) return new CollisionData(self.Owner, other.Owner, TOI, new Vec2[] { self.Owner.position + selfPrediction * TOI }, normal, false);
+                    
+                }
             }
             //bool centerInside = PolygonPoint(vertices, cx, cy);
-            //if (centerInside) return new CollisionData(self.Owner, other.Owner, CircleTOI(self.Owner.position, r, selfPrediction, (new Vec2(cx, cy) - closestPoint).normalized), Vec2[] { }, (new Vec2(cx, cy) - closestPoint).normalized, true);
+            //if (centerInside) return new CollisionData(self.Owner, other.Owner, CircleTOI(self.Owner.position, r, selfPrediction, (new Vec2(cx, cy) -  ).normalized), Vec2[] { }, (new Vec2(cx, cy) - closestPoint).normalized, true);
 
             return CollisionData.Empty;
         }

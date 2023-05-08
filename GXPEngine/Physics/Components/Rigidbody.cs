@@ -25,9 +25,9 @@ public class Rigidbody : Component
     private readonly List<Action> CollisionDebugStack;
     private readonly List<Action> SyncedCollisionDebugs;
 
-    public static Rigidbody Standard(GameObject owner) { return new Rigidbody(owner, new string[] { "1", "0,2", "6", "0,2", "0", "0", "false" }); }
-    public static Rigidbody Static(GameObject owner) { return new Rigidbody(owner, new string[] { "4", "0,2", "1000", "0,2", "0", "0", "true" }); }
-    public static Rigidbody Bullet(GameObject owner) { return new Rigidbody(owner, new string[] { "0", "0,2", "1", "0,2", "0", "0", "false" }); }
+    public static Rigidbody Standard(GameObject owner) { return new Rigidbody(owner, new string[] { "1", "0,2", "6", "0", "0", "0", "false" }); }
+    public static Rigidbody Static(GameObject owner) { return new Rigidbody(owner, new string[] { "4", "0,2", "1000", "0", "0", "0", "true" }); }
+    public static Rigidbody Bullet(GameObject owner) { return new Rigidbody(owner, new string[] { "0", "0,2", "1", "0", "0", "0", "false" }); }
 
     public Rigidbody(GameObject owner, params string[] args) : base(owner)
     {
@@ -101,7 +101,7 @@ public class Rigidbody : Component
 
         _prevPosition = Owner.position;
 
-        Vec2 stepVelocity = Velocity * (Time.deltaTime / 1000f);
+        Vec2 stepVelocity = Velocity * (Time.deltaTime / (float)1000);
         Owner.SetXY(Owner.x + stepVelocity.x, Owner.y + stepVelocity.y);
 
         if (_prevVelocity == Velocity)
@@ -164,6 +164,7 @@ public class Rigidbody : Component
         {
             Vec2 POI = data.AverageCollisionPoint();
             Owner.SetXY(POI.x, POI.y);
+            //Debug.Log(Owner.position.ToString());
         }
 
         selfRigidbody.ApplyFriction(Friction + otherRigidbody.Friction);
