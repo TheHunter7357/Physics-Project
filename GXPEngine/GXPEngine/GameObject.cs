@@ -1,4 +1,5 @@
 using GXPEngine.Core;
+using GXPEngine.Fire;
 using System;
 using System.Collections.Generic;
 
@@ -26,6 +27,7 @@ namespace GXPEngine
         private bool destroyed = false;
         public Rigidbody Rigidbody { get; private set; }
         public Collider Collider { get; private set; }
+        public HeatCollider heatCollider { get; private set; }
         private readonly Dictionary<string, Component> _components = new Dictionary<string, Component>();
 
         public Vec2 position => new Vec2(x, y);

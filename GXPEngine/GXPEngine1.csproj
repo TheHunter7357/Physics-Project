@@ -58,6 +58,8 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Fire\HeatColider.cs" />
+    <Compile Include="Fire\HeatComponent.cs" />
     <Compile Include="GXPExtended\GUI\VerticalList.cs" />
     <Compile Include="GXPExtended\GXPAEditor\GXPAssetEditor.cs" />
     <Compile Include="Managers\AssetManager.cs" />

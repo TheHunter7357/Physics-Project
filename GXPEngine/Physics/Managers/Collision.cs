@@ -555,7 +555,7 @@ namespace GXPEngine.PhysicsCore
                 self.LineStart.x + ua * (self.LineEnd.x - self.LineStart.x),
                 self.LineStart.y + ua * (self.LineEnd.y - self.LineStart.y)
             );
-            return new CollisionData(self.Owner, other.Owner, 0, new[] { collisionPoint }, Vec2.Zero, false);
+            return new CollisionData(self.Owner, other.Owner, 0, Vec2.Zero, false);
         }
 
         private CollisionData CircleToPoint(CircleCollider selfCollider, Vec2 point)
@@ -576,7 +576,6 @@ namespace GXPEngine.PhysicsCore
             float cy = self.Owner.y + self.Offset.y;
             float r = self.Radius;
             int next = 0;
-            Vec2 closestPoint = new Vec2(cx, cy);
             for (int current = 0; current < vertices.Length; current++)
             {
                 next = current + 1;
@@ -585,19 +584,19 @@ namespace GXPEngine.PhysicsCore
                 Vec2 vc = vertices[current];
                 Vec2 vn = vertices[next];
 
-                bool collision = LineCircle(vc, vn, self, out Vec2 curClosestPoint);
-                closestPoint = curClosestPoint;
-                if (collision) return new CollisionData(self.Owner, other.Owner, CircleTOI(self.Owner.position, r, selfPrediction, closestPoint, (vn - vc).normal), new Vec2[] { closestPoint }, (vn - vc).normal, false);
+                bool collision = LineCircle(vc, vn, self, out float timeOfImpact);
+                Vec2 line = (vn - vc);
+                
+                //if (collision) return new CollisionData(self.Owner, other.Owner, CircleTOI(self.Owner.position, r, selfPrediction, (vn - vc).normal),  (vn - vc).normal, false);
             }
             bool centerInside = PolygonPoint(vertices, cx, cy);
-            if (centerInside) return new CollisionData(self.Owner, other.Owner, CircleTOI(self.Owner.position, r, selfPrediction, closestPoint, (new Vec2(cx, cy) - closestPoint).normalized), new Vec2[] { closestPoint }, (new Vec2(cx, cy) - closestPoint).normalized, true);
+            if (centerInside) return new CollisionData(self.Owner, other.Owner, CircleTOI(self.Owner.position, r, selfPrediction, (new Vec2(cx, cy) - closestPoint).normalized), (new Vec2(cx, cy) - closestPoint).normalized, true);
 
             return CollisionData.Empty;
         }
-        private bool LineCircle(Vec2 start, Vec2 end, CircleCollider self, out Vec2 closestPoint)
+        private bool LineCircle(Vec2 start, Vec2 end, CircleCollider self, out float TOI)
         {
-            closestPoint = Vec2.Zero;
-
+            TOI = 0;
             float a = Vec2.Dot((start - self.Owner.position),(end - start).normal.normalized) - self.Radius;
 
             float b = Vec2.Dot(self.Owner.Rigidbody.ActualVelocity, (end-start).normal.normalized);
@@ -621,7 +620,7 @@ namespace GXPEngine.PhysicsCore
                 float d = Vec2.Dot((POI - start), (end - POI).normal.normalized);
                 if (d >= 0 && d <= (end - start).length)
                 {
-                    
+                    TOI = t;
                     return true;
                 }
             }
@@ -705,7 +704,7 @@ namespace GXPEngine.PhysicsCore
             }
             return collision;
         }
-        private float CircleTOI(Vec2 oldPosition, float radius, Vec2 newPosition, Vec2 closestPoint, Vec2 normal)
+        private float CircleTOI(Vec2 oldPosition, float radius, Vec2 newPosition, Vec2 normal)
         {
             float a = ((closestPoint + normal * radius) - oldPosition).length;
             float b = Vec2.Dot(newPosition - oldPosition, normal.normalized);
