@@ -1,0 +1,3 @@
+C:\Users\Kyrylo\Desktop\Projects\2DPhysicsEngine\PhysicsEngine\bin\Release\GXPEngine.exe
+C:\Users\Kyrylo\Desktop\Projects\2DPhysicsEngine\PhysicsEngine\obj\x86\Release\GXPEngine.csproj.CoreCompileInputs.cache
+C:\Users\Kyrylo\Desktop\Projects\2DPhysicsEngine\PhysicsEngine\obj\x86\Release\GXPEngine.exe
