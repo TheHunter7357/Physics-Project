@@ -40,7 +40,7 @@ public class Rigidbody : Component
         CollisionDebugStack = new List<Action>();
         SyncedCollisionDebugs = new List<Action>();
 
-        if (args.Length == 0) 
+        if (args.Length == 0)
             parseParams();
         else
         {
@@ -48,7 +48,7 @@ public class Rigidbody : Component
             else if (args[0] == "Static") copyParams(Static(owner));
             else if (args[0] == "Bullet") copyParams(Bullet(owner));
             else parseParams();
-        }  
+        }
 
         void copyParams(Rigidbody other)
         {
@@ -110,7 +110,8 @@ public class Rigidbody : Component
         _prevVelocity = Velocity;
         ActualVelocity = Owner.position - _prevPosition;
     }
-    private void ApplyFriction(float friction) {
+    private void ApplyFriction(float friction)
+    {
         Velocity /= 1 + friction * Time.deltaTime / 1000f;
     }
 
@@ -134,10 +135,10 @@ public class Rigidbody : Component
     {
         AngularVelocity /= 1 + friction * Time.deltaTime / 1000f;
     }
-    public void AddForce(Vec2 force) 
-    { 
-        Velocity += force / Mass; 
-    }   
+    public void AddForce(Vec2 force)
+    {
+        Velocity += force / Mass;
+    }
     public void AddForceAtPosition(Vec2 force, Vec2 position)
     {
         AddForce(force);
@@ -152,33 +153,17 @@ public class Rigidbody : Component
     {
         if (data.isEmpty || data.IsDisabled || data.self.Collider is null || data.self.Rigidbody is null) return;
 
-        if(Physics.CurrentCollisions.ContainsKey(data.other))
+        if (Physics.CurrentCollisions.ContainsKey(data.other))
             for (int i = 0; i < Physics.CurrentCollisions[data.other].Length; i++)
                 Physics.CurrentCollisions[data.other][i].IsDisabled = true;
 
         Rigidbody selfRigidbody = Owner.Rigidbody;
-        Rigidbody otherRigidbody = data.other.Rigidbody is null? Static(data.other) : data.other.Rigidbody;
+        Rigidbody otherRigidbody = data.other.Rigidbody is null ? Static(data.other) : data.other.Rigidbody;
 
         if (!IsStatic)
         {
-            Vec2 POI = Vec2.Lerp
-            (
-                Owner.position,
-                data.AverageCollisionPoint() + data.collisionNormal * (Owner.Collider is CircleCollider circle ? circle.Radius : 1),
-                Mathf.Clamp01(data.timeOfImpact)
-            );
+            Vec2 POI = data.AverageCollisionPoint();
             Owner.SetXY(POI.x, POI.y);
-        }
-
-        if (!otherRigidbody.IsStatic)
-        {
-            Vec2 POI = Vec2.Lerp
-            (
-                data.other.position,
-                data.AverageCollisionPoint() - data.collisionNormal * (data.other.Collider is CircleCollider circle ? circle.Radius : 1),
-                1 - Mathf.Clamp01(data.timeOfImpact)
-            );
-            data.other.SetXY(POI.x, POI.y);
         }
 
         selfRigidbody.ApplyFriction(Friction + otherRigidbody.Friction);
@@ -195,6 +180,7 @@ public class Rigidbody : Component
         Vec2 impulse = j * collisionNormal;
         selfRigidbody.AddForce(impulse);
         otherRigidbody.AddForce(0 - impulse);
+        //Debug.Log("Collision");
     }
     private void ResolveAllCollision(CollisionData[] datas)
     {
@@ -204,18 +190,19 @@ public class Rigidbody : Component
                 ResolveCollision(data);
     }
 
-    public void AddCollisionDebugToStack(Action collisionDebug) 
-    { 
-        CollisionDebugStack.Add(collisionDebug); 
+    public void AddCollisionDebugToStack(Action collisionDebug)
+    {
+        CollisionDebugStack.Add(collisionDebug);
     }
     private void CollisionDebugUpdate()
-    {;
+    {
+        ;
         SyncedCollisionDebugs.Clear();
         for (int i = 0; i < CollisionDebugStack.Count; i++)
             SyncedCollisionDebugs.Add(CollisionDebugStack[i]);
-        
+
         List<Action> invokedCollisionDebugs = new List<Action>();
-        for(int i = 0; i < SyncedCollisionDebugs.Count; i++) 
+        for (int i = 0; i < SyncedCollisionDebugs.Count; i++)
         {
             if (SyncedCollisionDebugs[i] is null) continue;
             SyncedCollisionDebugs[i].Invoke();

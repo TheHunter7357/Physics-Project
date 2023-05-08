@@ -4,6 +4,7 @@ using System;
 public struct CollisionData : IComparable
 {
 	public GameObject self, other;
+	public Vec2[] collisionPoints;
 	public Vec2 collisionNormal;
 	public float timeOfImpact;
 	public bool isInside;
@@ -27,16 +28,18 @@ public struct CollisionData : IComparable
 	{
 		self = null;
 		this.other = other;
+		collisionPoints = null;
 		collisionNormal = Vec2.Zero;
 		timeOfImpact = -1;
 		isInside = false;
 		isEmpty = !collided;
 		IsDisabled = false;
 	}
-	public CollisionData(GameObject self, GameObject other, float timeOfImpact, Vec2 collisionNormal, bool isInside)
+	public CollisionData(GameObject self, GameObject other, float timeOfImpact, Vec2[] collisionPoints, Vec2 collisionNormal, bool isInside)
 	{
 		this.self = self;
 		this.other = other;
+		this.collisionPoints = collisionPoints;
 		this.collisionNormal = collisionNormal;
 		this.timeOfImpact = timeOfImpact;
 		this.isInside = isInside;

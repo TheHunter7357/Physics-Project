@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 
 namespace GXPEngine.PhysicsCore
 {
@@ -436,7 +437,7 @@ namespace GXPEngine.PhysicsCore
 
             float distance = Vec2.Distance(selfCenter, otherCenter);
 
-            Vec2 collisionPoint = otherCenter + (selfCenter - otherCenter).normalized * other.Radius;
+            Vec2 collisionPoint = otherCenter + (selfCenter - otherCenter).normalized * (other.Radius + self.Radius);
 
             if (Settings.CollisionDebug)
             {
@@ -555,7 +556,7 @@ namespace GXPEngine.PhysicsCore
                 self.LineStart.x + ua * (self.LineEnd.x - self.LineStart.x),
                 self.LineStart.y + ua * (self.LineEnd.y - self.LineStart.y)
             );
-            return new CollisionData(self.Owner, other.Owner, 0, Vec2.Zero, false);
+            return new CollisionData(self.Owner, other.Owner, 0,new Vec2[] { }, Vec2.Zero, false);
         }
 
         private CollisionData CircleToPoint(CircleCollider selfCollider, Vec2 point)
@@ -567,6 +568,7 @@ namespace GXPEngine.PhysicsCore
             // NOT IMPLEMENTED // NOT FINISHED // NOT WORKING // NOT NEEDED THOUGH
             return CollisionData.Empty;
         }
+
 
         private CollisionData CircleToPoly(CircleCollider self, PolygonCollider other)
         {
@@ -585,12 +587,33 @@ namespace GXPEngine.PhysicsCore
                 Vec2 vn = vertices[next];
 
                 bool collision = LineCircle(vc, vn, self, out float timeOfImpact);
+                //Debug.Log(collision.ToString());
                 Vec2 line = (vn - vc);
-                
-                //if (collision) return new CollisionData(self.Owner, other.Owner, CircleTOI(self.Owner.position, r, selfPrediction, (vn - vc).normal),  (vn - vc).normal, false);
+                Vec2 POI = self.Owner.position + selfPrediction * timeOfImpact;
+                if (collision) 
+                {
+                    //Debug.Log("Collision");
+                    return new CollisionData(self.Owner, other.Owner, CircleTOI(self.Owner.position, r, selfPrediction, line.normal, vc), new Vec2[] { POI }, line.normal, false); 
+                }
+
+                vc = vertices[next];
+                vn = vertices[current];
+
+                collision = LineCircle(vc, vn, self, out timeOfImpact);
+                //Debug.Log(collision.ToString());
+                line = (vn - vc);
+                POI = self.Owner.position + selfPrediction * timeOfImpact;
+                if (collision)
+                {
+                    //Debug.Log("Collision");
+                    return new CollisionData(self.Owner, other.Owner, CircleTOI(self.Owner.position, r, selfPrediction, line.normal, vc), new Vec2[] { POI }, line.normal, false);
+                }
+
+
+                //TODO Simple circle point collision
             }
-            bool centerInside = PolygonPoint(vertices, cx, cy);
-            if (centerInside) return new CollisionData(self.Owner, other.Owner, CircleTOI(self.Owner.position, r, selfPrediction, (new Vec2(cx, cy) - closestPoint).normalized), (new Vec2(cx, cy) - closestPoint).normalized, true);
+            //bool centerInside = PolygonPoint(vertices, cx, cy);
+            //if (centerInside) return new CollisionData(self.Owner, other.Owner, CircleTOI(self.Owner.position, r, selfPrediction, (new Vec2(cx, cy) - closestPoint).normalized), Vec2[] { }, (new Vec2(cx, cy) - closestPoint).normalized, true);
 
             return CollisionData.Empty;
         }
@@ -601,7 +624,7 @@ namespace GXPEngine.PhysicsCore
 
             float b = Vec2.Dot(self.Owner.Rigidbody.ActualVelocity, (end-start).normal.normalized);
 
-            float t = 0;
+            float t;
 
             if (b <= 0) return false;
             if (a >= 0)
@@ -616,8 +639,10 @@ namespace GXPEngine.PhysicsCore
 
             if (t <= 1)
             {
+                //Debug.Log(t.ToString());
                 Vec2 POI = self.Owner.position + self.Owner.Rigidbody.ActualVelocity * t;
-                float d = Vec2.Dot((POI - start), (end - POI).normal.normalized);
+                float d = Vec2.Dot((POI - start), (end - start).normalized);
+                //Debug.Log(d.ToString());
                 if (d >= 0 && d <= (end - start).length)
                 {
                     TOI = t;
@@ -704,9 +729,9 @@ namespace GXPEngine.PhysicsCore
             }
             return collision;
         }
-        private float CircleTOI(Vec2 oldPosition, float radius, Vec2 newPosition, Vec2 normal)
+        private float CircleTOI(Vec2 oldPosition, float radius, Vec2 newPosition, Vec2 normal, Vec2 lineStart)
         {
-            float a = ((closestPoint + normal * radius) - oldPosition).length;
+            float a = (((oldPosition - Vec2.Dot((oldPosition-lineStart), normal)) + normal * radius) - oldPosition).length;
             float b = Vec2.Dot(newPosition - oldPosition, normal.normalized);
             float t = a / b;
             return t;
