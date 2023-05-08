@@ -625,7 +625,7 @@ namespace GXPEngine.PhysicsCore
                     return true;
                 }
             }
-            else return false;
+            return false;
 
             //Vec2 center = new Vec2(self.Owner.x + self.Offset.x, self.Owner.y + self.Offset.y);
             //float r = self.Radius;
